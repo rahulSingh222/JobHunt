@@ -3,9 +3,13 @@ import { FormRow } from "../../Components";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import FormSelectRow from "../../Components/FormSelectRow";
-import { handleChange, clearValues, createJob } from "../../features/Job/jobSlice";
+import {
+  handleChange,
+  clearValues,
+  createJob,
+  editJob,
+} from "../../features/Job/jobSlice";
 import { useEffect } from "react";
-
 
 const AddJob = () => {
   const {
@@ -21,11 +25,9 @@ const AddJob = () => {
     editJobId,
   } = useSelector((store) => store.job);
 
-  const {user} = useSelector( (store) => store.user);
+  const { user } = useSelector((store) => store.user);
 
   const dispatch = useDispatch();
-
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,20 +37,30 @@ const AddJob = () => {
       return;
     }
 
-    dispatch(createJob({position, company, jobLocation, jobType, status}));
+    if (isEditing) {
+      dispatch(
+        editJob({
+          jobId: editJobId,
+          job: { position, company, jobLocation, jobType, status },
+        })
+      );
+      return;
+    }
+
+    dispatch(createJob({ position, company, jobLocation, jobType, status }));
   };
 
   const handleJobInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    dispatch(handleChange({name, value}));
+    dispatch(handleChange({ name, value }));
   };
 
   useEffect(() => {
-    if(!isEditing){
-      dispatch(handleChange({name : 'jobLocation' , value : user.location}))
+    if (!isEditing) {
+      dispatch(handleChange({ name: "jobLocation", value: user.location }));
     }
-  });
+  }, []);
 
   return (
     <Wrapper>
@@ -77,7 +89,7 @@ const AddJob = () => {
             value={jobLocation}
             handleChange={handleJobInput}
           />
-        
+
           {/* Status */}
           <FormSelectRow
             name="status"
@@ -91,7 +103,7 @@ const AddJob = () => {
           <FormSelectRow
             name="jobType"
             value={jobType}
-            labelText='job type'
+            labelText="job type"
             handleChange={handleJobInput}
             list={jobTypeOptions}
           />
